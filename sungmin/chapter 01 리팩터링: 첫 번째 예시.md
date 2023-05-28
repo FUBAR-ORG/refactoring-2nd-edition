@@ -370,7 +370,7 @@ function statement(invoice, plays) {
 
 두 단계가 명확히 분리되어 각 코드를 별도 파일에 저장할 수 있습니다.
 
-## 중간 점검: 두 파일(과 두 단계)로 분리됨
+## 1.7 중간 점검: 두 파일(과 두 단계)로 분리됨
 처음보다 코드량이 늘었지만 추가된 코드 덕분에 전체 로직을 구성하는 요소 각각이 부각되고, 계산과 출력 형식을 다루는 부분이 분리되었습니다.  
 이렇게 모듈화하면 각 부분이 하는 일과 그 부분들이 서로 돌아가는 과정을 파악하기 쉬워집니다.   
 모듈화 덕분에 계산 코드를 중복하지 않고도 HTML 버전을 만들 수 있었습니다.
@@ -413,3 +413,57 @@ export default function createStatementData(invoice, plays) {
   function totalAmount() {...}
 }
 ```
+
+## 1.8 다형성을 활용해 계산 코드 재구성하기
+현재 상태에서 코드를 변경하려면 이 꼐산을 수행하는 함수에서 조건문을 수정해야 합니다.   
+조건부 로직을 명확한 구조로 보완하는 방법은 다양하지만 객체지향의 다형성을 활용하면 자연스럽게 해결할 수 있습니다.
+
+```js
+export default function createStatementData(invoice, plays) {
+  const result = {};
+  result.customer = invoice.customer;
+  result.performances = invoice.performances.map(enrichPerformance);
+  result.totalAmount = totalAmount(result);
+  result.totalVolumeCredits = totalVolumeCredits(result);
+  return result;
+
+  function enrichPerformance(aPerformance) {...}
+  function playFor(aPerformance) {...}
+  function totalVolumeCredits() {...}
+  function totalAmount() {...}
+
+  // 팩터리 생성자
+  function createPerformanceCalculator(aPerformance, aPlay) {
+    switch (aPlay.type) {
+      case 'tragedy': 
+        return new TragedyCalculator(aPerformance, aPlay);
+      case 'comedy': 
+        return new ComedyCalculator(aPerformance, aPlay);
+      default:
+        throw new Error(`알 수 없는 장르: ${aPlay.type}`);
+    }
+  }
+
+  // 슈퍼 클래스
+  class PerformanceCaluclator {...}
+
+  // 서브클래스
+  class TragedyCalculator extends PerformanceCaluclator {...}
+  class ComedyCalculator extends PerformanceCaluclator {...}
+}
+```
+
+
+## 1.9 상태 점검: 다형성을 활용하여 데이터 생성하기
+함수 추출때처럼 코드가 늘어났지만 장르별 계산 코드들을 팩터리 패턴과 다형성을 사용하여 함께 묶어두었습니다.
+이제 새로운 장르를 추가하려면 서브클래스를 작성하고 팩터리 함수에 추가하기만 하면 됩니다.
+
+## 1.10 마치며
+다음과 같이 간단한 예시로 리팩터링이 무엇인지 알아보았습니다.
+- 함수 추출하기
+- 변수 인라인하기
+- 함수 옮기기
+- 조건부 로직을 다형성으로 바꾸기
+- 단계 쪼개기
+
+> 좋은 코드를 가늠하는 확실한 방법은 '얼마나 수정하기 쉬운가'다.
