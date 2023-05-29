@@ -9,13 +9,14 @@ function statement(invoice, plays) {
   });
 
   for (const perf of invoice.performances) {
-    const thisAmount = amountFor(perf, playFor(perf));
     volumeCredits += Math.max(perf.audience - 30, 0);
 
     if (playFor(perf).type === "comedy") volumeCredits += Math.floor(perf.audience / 5);
 
-    result += `${playFor(perf).name}: ${format(thisAmount / 100)} (${perf.audience}석)\n`;
-    totalAmount += thisAmount;
+    result += `${playFor(perf).name}: ${format(amountFor(perf, playFor(perf)) / 100)} (${
+      perf.audience
+    }석)\n`;
+    totalAmount += amountFor(perf, playFor(perf));
   }
 
   result += `총액: ${format(totalAmount / 100)}\n`;
