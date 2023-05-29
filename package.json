@@ -1,0 +1,25 @@
+{
+  "name": "refactoring-2nd-edition",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "example": "example"
+  },
+  "scripts": {
+    "test":  "jest" 
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FUBAR-ORG/refactoring-2nd-edition.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/FUBAR-ORG/refactoring-2nd-edition/issues"
+  },
+  "homepage": "https://github.com/FUBAR-ORG/refactoring-2nd-edition#readme",
+  "devDependencies": {
+    "jest": "^29.5.0"
+  }
+}
