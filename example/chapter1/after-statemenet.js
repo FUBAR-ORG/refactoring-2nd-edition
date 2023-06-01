@@ -1,24 +1,28 @@
 function statement(invoice, plays) {
   let totalAmount = 0;
-  let volumeCredits = 0;
   let result = `청구 내역 (고객명: ${invoice.customer})\n`;
 
   for (const perf of invoice.performances) {
-    const play = plays[perf.playID];
-    let thisAmount = amountFor(play, perf);
+    let thisAmount = amountFor(playForPerformance(perf), perf);
 
-    volumeCredits += Math.max(perf.audience - 30, 0);
-
-    if (play.type === "comedy") volumeCredits += Math.floor(perf.audience / 5);
-
-    result += `${play.name}: ${usd(thisAmount)} (${perf.audience}석)\n`;
+    result += `${playForPerformance(perf).name}: ${usd(thisAmount)} (${perf.audience}석)\n`;
     totalAmount += thisAmount;
   }
 
   result += `총액: ${usd(totalAmount)}\n`;
-  result += `적립 포인트: ${volumeCredits}점\n`;
+  result += `적립 포인트: ${sumVolumeCredits(invoice.performances)}점\n`;
 
   return result;
+
+  function sumVolumeCredits(aPerformances) {
+    let result = 0;
+    for (const perf of aPerformances) {
+      result += Math.max(perf.audience - 30, 0);
+
+      if (playForPerformance(perf).type === "comedy") result += Math.floor(perf.audience / 5);
+    }
+    return result;
+  }
 
   function playForPerformance(aPerformance) {
     return plays[aPerformance.playID];
