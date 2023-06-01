@@ -5,17 +5,19 @@ function statement(invoice, plays) {
     result += `${playForPerformance(perf).name}: ${usd(amountFor(perf))} (${perf.audience}석)\n`;
   }
 
-  let totalAmount = 0;
-  for (const perf of invoice.performances) {
-    let thisAmount = amountFor(perf);
-    totalAmount += thisAmount;
-  }
-
-  result += `총액: ${usd(totalAmount)}\n`;
+  result += `총액: ${usd(sumTotalAmount(invoice.performances))}\n`;
 
   result += `적립 포인트: ${sumVolumeCredits(invoice.performances)}점\n`;
 
   return result;
+
+  function sumTotalAmount(aPerformances) {
+    let result = 0;
+    for (const perf of aPerformances) {
+      result += amountFor(perf);
+    }
+    return result;
+  }
 
   function sumVolumeCredits(aPerformances) {
     let result = 0;
