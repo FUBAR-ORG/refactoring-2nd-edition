@@ -20,6 +20,10 @@ function statement(invoice, plays) {
 
   return result;
 
+  function playForPerformance(aPerformance) {
+    return plays[aPerformance.playID];
+  }
+
   function usd(aNumber) {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
