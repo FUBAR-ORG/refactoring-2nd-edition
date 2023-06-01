@@ -1,15 +1,18 @@
 function statement(invoice, plays) {
-  let totalAmount = 0;
   let result = `청구 내역 (고객명: ${invoice.customer})\n`;
 
   for (const perf of invoice.performances) {
-    let thisAmount = amountFor(playForPerformance(perf), perf);
+    result += `${playForPerformance(perf).name}: ${usd(amountFor(perf))} (${perf.audience}석)\n`;
+  }
 
-    result += `${playForPerformance(perf).name}: ${usd(thisAmount)} (${perf.audience}석)\n`;
+  let totalAmount = 0;
+  for (const perf of invoice.performances) {
+    let thisAmount = amountFor(perf);
     totalAmount += thisAmount;
   }
 
   result += `총액: ${usd(totalAmount)}\n`;
+
   result += `적립 포인트: ${sumVolumeCredits(invoice.performances)}점\n`;
 
   return result;
@@ -36,9 +39,9 @@ function statement(invoice, plays) {
     }).format(aNumber / 100);
   }
 
-  function amountFor(play, perf) {
+  function amountFor(perf) {
     let thisAmount = 0;
-    switch (play.type) {
+    switch (playForPerformance(perf).type) {
       case "tragedy":
         thisAmount = 40000;
         if (perf.audience > 30) {
@@ -53,7 +56,7 @@ function statement(invoice, plays) {
         thisAmount += 300 * perf.audience;
         break;
       default:
-        throw new Error(`알 수 없는 장르: ${play.type}`);
+        throw new Error(`알 수 없는 장르: ${playForPerformance(perf).type}`);
     }
     return thisAmount;
   }
