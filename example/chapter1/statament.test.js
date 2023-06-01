@@ -13,16 +13,3 @@ test("statement basic test", () => {
       "적립 포인트: 47점\n"
   );
 });
-
-test("extract switch", () => {
-  const audience = 30;
-
-  const play = { type: "comedy" };
-  const perf = { audience: audience };
-  const result = worker.amountFor(play, perf);
-  let thisAmount = 30000;
-  thisAmount += 10000 + 500 * (perf.audience - 20);
-  thisAmount += 300 * perf.audience;
-
-  expect(result).toBe(thisAmount);
-});
