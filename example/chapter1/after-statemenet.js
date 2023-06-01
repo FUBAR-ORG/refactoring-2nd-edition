@@ -1,15 +1,12 @@
 function statement(invoice, plays) {
-  let result = `청구 내역 (고객명: ${invoice.customer})\n`;
-
-  for (const perf of invoice.performances) {
-    result += `${playForPerformance(perf).name}: ${usd(amountFor(perf))} (${perf.audience}석)\n`;
-  }
-
-  result += `총액: ${usd(sumTotalAmount(invoice.performances))}\n`;
-
-  result += `적립 포인트: ${sumVolumeCredits(invoice.performances)}점\n`;
-
-  return result;
+  return String(`청구 내역 (고객명: ${invoice.customer})\n`)
+    .concat(
+      ...invoice.performances.map(
+        perf => `${playForPerformance(perf).name}: ${usd(amountFor(perf))} (${perf.audience}석)\n`
+      )
+    )
+    .concat(`총액: ${usd(sumTotalAmount(invoice.performances))}\n`)
+    .concat(`적립 포인트: ${sumVolumeCredits(invoice.performances)}점\n`);
 
   function sumTotalAmount(aPerformances) {
     let result = 0;
@@ -41,26 +38,26 @@ function statement(invoice, plays) {
     }).format(aNumber / 100);
   }
 
-  function amountFor(perf) {
-    let thisAmount = 0;
-    switch (playForPerformance(perf).type) {
+  function amountFor(aPerformance) {
+    let result = 0;
+    switch (playForPerformance(aPerformance).type) {
       case "tragedy":
-        thisAmount = 40000;
-        if (perf.audience > 30) {
-          thisAmount += 1000 * (perf.audience - 30);
+        result = 40000;
+        if (aPerformance.audience > 30) {
+          result += 1000 * (aPerformance.audience - 30);
         }
         break;
       case "comedy":
-        thisAmount = 30000;
-        if (perf.audience > 20) {
-          thisAmount += 10000 + 500 * (perf.audience - 20);
+        result = 30000;
+        if (aPerformance.audience > 20) {
+          result += 10000 + 500 * (aPerformance.audience - 20);
         }
-        thisAmount += 300 * perf.audience;
+        result += 300 * aPerformance.audience;
         break;
       default:
-        throw new Error(`알 수 없는 장르: ${playForPerformance(perf).type}`);
+        throw new Error(`알 수 없는 장르: ${playForPerformance(aPerformance).type}`);
     }
-    return thisAmount;
+    return result;
   }
 }
 
