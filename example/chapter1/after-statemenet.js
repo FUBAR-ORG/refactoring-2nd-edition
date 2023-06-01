@@ -1,12 +1,16 @@
+function templateString(...str) {
+  return str.join("\n").concat("\n");
+}
+
 function statement(invoice, plays) {
-  return String(`청구 내역 (고객명: ${invoice.customer})\n`)
-    .concat(
-      ...invoice.performances.map(
-        perf => `${playForPerformance(perf).name}: ${usd(amountFor(perf))} (${perf.audience}석)\n`
-      )
-    )
-    .concat(`총액: ${usd(sumTotalAmount(invoice.performances))}\n`)
-    .concat(`적립 포인트: ${sumVolumeCredits(invoice.performances)}점\n`);
+  return templateString(
+    `청구 내역 (고객명: ${invoice.customer})`,
+    ...invoice.performances.map(
+      perf => `${playForPerformance(perf).name}: ${usd(amountFor(perf))} (${perf.audience}석)`
+    ),
+    `총액: ${usd(sumTotalAmount(invoice.performances))}`,
+    `적립 포인트: ${sumVolumeCredits(invoice.performances)}점`
+  );
 
   function sumTotalAmount(aPerformances) {
     let result = 0;
