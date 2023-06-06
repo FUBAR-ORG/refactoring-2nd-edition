@@ -1,4 +1,8 @@
 function statement(invoice, plays) {
+  return renderPlainText(invoice, plays);
+}
+
+function renderPlainText(invoice, plays) {
   let result = `청구 내역 (고객명: ${invoice.customer})\n`;
   for (const perf of invoice.performances) {
     result += `${playFor(perf).name}: ${usd(amountFor(perf))} (${perf.audience}석)\n`;
@@ -10,7 +14,7 @@ function statement(invoice, plays) {
   function totalAmount() {
     let result = 0;
     for (const perf of invoice.performances) {
-      result += amountFor(perf, playFor(perf));
+      result += amountFor(perf);
     }
     return result;
   }
