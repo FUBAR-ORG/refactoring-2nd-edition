@@ -15,3 +15,21 @@ test("statement basic test", () => {
       "적립 포인트: 47점\n"
   );
 });
+
+test("Object.assign 테스트", () => {
+  const array = [{ prop: "value" }, { prop: { prop: "value" } }];
+  const arrayTest1 = array;
+  const arrayTest2 = array.map((obj) => {
+    return Object.assign({}, obj);
+  });
+
+  console.log("before " + JSON.stringify(arrayTest1));
+  console.log("before " + JSON.stringify(arrayTest2));
+  array[0].prop = "changeValue";
+  array[1].prop.prop = "changeValue";
+  console.log("after " + JSON.stringify(arrayTest1));
+  console.log("after " + JSON.stringify(arrayTest2));
+
+  expect(arrayTest1[0].prop).not.toBe(arrayTest2[0].prop);
+  expect(arrayTest1[1].prop).toBe(arrayTest2[1].prop);
+});
