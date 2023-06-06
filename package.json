@@ -13,7 +13,7 @@
     "type": "git",
     "url": "git+https://github.com/FUBAR-ORG/refactoring-2nd-edition.git"
   },
-  "author": "",
+  "author": "fubar",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/FUBAR-ORG/refactoring-2nd-edition/issues"
