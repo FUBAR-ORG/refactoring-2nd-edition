@@ -7,7 +7,7 @@
     "example": "example"
   },
   "scripts": {
-    "test":  "jest" 
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -21,5 +21,8 @@
   "homepage": "https://github.com/FUBAR-ORG/refactoring-2nd-edition#readme",
   "devDependencies": {
     "jest": "^29.5.0"
+  },
+  "dependencies": {
+    "prettier": "^2.8.8"
   }
 }

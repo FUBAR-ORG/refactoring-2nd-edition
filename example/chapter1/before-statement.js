@@ -35,7 +35,7 @@ function statement(invoice, plays) {
   }
 
   result += `총액: ${format(totalAmount / 100)}\n`;
-  result += `적립 포인트: ${volumeCredits}점\n;`;
+  result += `적립 포인트: ${volumeCredits}점\n`;
   return result;
 }
 
