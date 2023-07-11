@@ -11,3 +11,13 @@ describe("province", () => {
     expect(asia.shortfall).toBe(5);
   });
 });
+
+describe("no-before-each-province", () => {
+  const asia = new Province(sampleProvinceData());
+  it("shortfall", () => {
+    expect(asia.shortfall).toBe(5);
+  });
+  it("profit", () => {
+    expect(asia.profit).toBe(230);
+  });
+});
