@@ -243,4 +243,161 @@
     });
   })
   ```
-  - `be`
+  - `beforeEach` 구문은 각각의 테스트 바로 전에 실행되어 `asia`를 초기화하기 때문에 모든 테스트가 자신만의 새로운 `asia`를 사용하게 된다
+    - 개별 테스트를 실행할 때마다 픽스처를 새로 만들면 모든 테스트를 독립적으로 구성할 수 있다
+  - 불변임이 확실한 픽스처는 공유하기도 한다
+  - `beforeEach` 블록의 등장은 내가 표준 픽스처를 사용한다는 사실을 알려준다
+    - 코드를 읽는 이들은 해당 `describe` 블록 안의 모든 테스트가 똑같은 기준 데이터로부터 시작한다는 사실을 쉽게 알 수 있다
+
+---
+
+## 4.5 픽스처 수정하기
+
+- 실제로는 사용자가 값을 변경하면서 픽스처의 내용도 수정되는 경우가 흔하다
+- 이러한 수정은 대부분 세터에서 이루어진다
+  - 일반적으로 세터는 단순하기 때문에 잘 테스트하지 않지만, 예제의 `production()` 세터는 복잡하므로 테스트해볼 필요가 있다
+  ```javascript
+  describe('province', function() {
+    it('change production', function() {
+      const asia = new Province(sampleProvinceData());
+      asia.producers[0].production = 20;
+      expect(asia.shortfall).equal(-6);
+      expect(asia.profit).equal(292);
+    });
+  });
+  ```
+- 흔히 보이는 패턴
+  - `beforeEach` 블록에서 '설정'한 표준 픽스처를 취해서, 테스트를 '수행'하고, 이 픽스처가 일을 기대한 대로 처리했는지를 '검증'한다
+  - 설정-실행-검증(setup-exercise-verify), 조건-발생-결과(given-when-then), 준비-수행-단언(arrange-act-assert) 등으로 부른다
+  - 이 세 가지 단계가 한 테스트 안에 모두 담겨 있을 수도 있고, 초기 준비 작업 중 공통되는 부분을 `beforeEach`와 같은 표준 설정 루틴에 모아서 처리하기도 한다
+- 이 테스트는 `it` 구문 하나에서 두 가지 속성을 검증하고 있다
+  - 일반적으로 `it` 구문 하나당 검증도 하나씩만 하는 게 좋다
+    - 앞쪽 검증을 통과하지 못하면 나머지 검증은 실행해보지 못하고 테스트가 실패하게 되는데, 실패 원인을 파악하는 데 유용한 정보를 놓치기 쉽기 때문이다
+
+> 해체(teardown) 혹은 청소(cleanup)라고 하는 네 번째 단계도 있는데, 명시적으로 언급하지 않을 때가 많다.  
+> 해체 단계에서는 픽스처를 제거하여 테스트들이 서로 영향을 주지 못하게 막는다.  
+> 설정을 모두 `beforeEach`에서 수행하도록 작성해두면, 테스트들 사이에 걸친 픽스처를 테스트 프레임워크가 알아서 해체해주기 때문에 굳이 단계를 나눌 필요는 없다.
+> > 드물지만, 해체를 명시적으로 수행해야 할 때가 있다.  
+> > 생성하는 데 시간이 걸려서 여러 테스트가 공유해야만 하는 픽스처가 여기에 해당한다.
+
+---
+
+## 4.6 경계 조건 검사하기
+
+- 지금까지 작성한 테스트는 모든 일이 순조롭고 사용자도 우리의 의도대로 사용하는, 일명 꽃길(happy path) 상황에 집중하였다
+- 이 범위를 벗어나는 경계 지점에서 문제가 생기면 어떤 일이 벌어지는지 확인하는 테스트도 함께 작성하면 좋다
+- 생산자가 없는 경우
+  ```javascript
+  describe('no producers', function () {
+    let noProducers;
+    beforeEach(function () {
+      const data = {
+        name: 'No producers',
+        producers: [],
+        demand: 30,
+        price: 20,
+      };
+      noProducers = new Province(data);
+    });
+    it('shortfall', function () {
+      expect(noProducers.shortfall).equal(30);
+    });
+    it('profit', function () {
+      expect(noProducers.profit).equal(0);
+    });
+  });
+  ```
+- 숫자형으로 `0`이 입력되었을 때
+  ```javascript
+  describe("province", function () {
+    // ...
+    it("zero demand", function () {
+      asia.demand = 0;
+      expect(asia.shortfall).equal(-25);
+      expect(asia.profit).equal(0);
+    });
+  })
+  ```
+- 음수가 입력되었을 때
+  ```javascript
+  describe("province", function () {
+    // ...
+    it("negative demand", function () {
+      asia.demand = -1;
+      expect(asia.shortfall).equal(-26);
+      expect(asia.profit).equal(-10);
+    });
+  })
+  ```
+- 수익이 음수가 나온다는 것은 정상적인 현상이 아니기 때문에 에러를 던지는 등 특이 상황에 어떻게 처리하는 게 좋을지 생각해볼 수 있다
+
+> 문제가 생길 가능성이 있는 경계 조건을 생각해보고 그 부분을 집중적으로 테스트하자.
+
+- 수요 입력란이 비어있는 경우
+  ```javascript
+  describe("province", function () {
+    // ...
+    it("empty string demand", function () {
+      asia.demand = "";
+      expect(asia.shortfall).NaN;
+      expect(asia.profit).NaN;
+    });
+  })
+  ```
+- 예외 상황 예제
+  ```javascript
+  describe("string for producers", function () {
+    it("", function () {
+      const data = {
+        name: "String producers",
+        producers: "",
+        demand: 30,
+        price: 20,
+      };
+      const prov = new Province(data);
+      expect(prov.shortfall).equal(0);
+      // TypeError: doc.producers.forEach is not a function
+    });
+  })
+  ```
+- 에러와 실패를 구분하는 테스트 프레임워크도 많다
+- 실패(failure)란 검증 단계에서 실제 값이 예상 범위를 벗어났다는 뜻으로, 에러(error)와는 성격이 다르다
+  - 코드 작성자가 이 상황을 미처 예상하지 못한 것이다
+- 프로그램은 이 상황에 에러 상황을 지금보다 잘 처리하도록 코드를 추가(더 의미 있는 오류 메시지, `producers`를 빈 배열로 설정 등)할 수 있다
+- 같은 코드 베이스의 모듈 사이에서 유효성 검사(validation check) 코드가 너무 많으면 다른 곳에서 확인한 걸 중복으로 검증하여 오히려 문제가 될 수 있다
+  - 반면, `JSON`으로 인코딩된 요청처럼 외부에서 들어온 입력 객체는 유효한지 확인해봐야 하므로 테스트를 작성한다
+
+> 필자는 리팩터링 하기 전이라면 이런 테스트를 작성하지 않을 것이다.  
+> 리팩터링은 겉보기 동작에 영향을 주지 않아야 하며, 이런 오류는 겉보기 동작에 해당하지 않는다.  
+> 따라서 경계 조건에 대응하는 동작이 리팩터링 때문에 변하는지는 신경 쓸 필요가 없다.
+
+> 이런 오류로 인해 프로그램 내부에 잘못된 데이터가 흘러서 디버깅하기 어려운 문제가 발생한다면 **어서션 추가하기**를 적용해서 오류가 최대한 빨리 드러나게 하자.  
+> 어서션도 일종의 테스트로 볼 수 있으니 테스트 코드를 따로 작성할 필요는 없다.
+
+- 테스트에도 수확 체감 법칙(law of diminishing returns)이 적용된다
+- 테스트를 너무 많이 자것ㅇ하다 보면 오히려 의욕이 떨어져 나중에는 하나도 작성하지 않게 될 위험도 있다
+  - 위험한 부분만 집중하는게 좋다
+    - 코드 처리 과정이 복잡한 부분
+    - 함수에서 오류가 생길만한 부분
+
+> 테스트가 모든 버그는 걸러주지는 못할지라도, 안심하고 리팩터링할 수 있는 보호막은 되어준다.
+
+---
+
+## 4.7 끝나지 않은 여정
+
+- 테스트는 리팩터링에 반드시 필요한 토대다
+- 테스트는 중요해졌으며, 테스트 용이성(testability)을 아키텍처 평가 기준으로 활용하는 사례도 많다
+- 이 장에서 보여준 테스트는 단위 테스트(unit test)에 해당한다
+  - 단위 테스트: 코드의 작은 영역만을 대상으로 빠르게 실행되도록 설계된 테스트
+  - 단위 테스트는 자가 테스트 코드의 핵심이자, 자가 테스트 시스템은 단위 테스트가 대부분 차지한다
+- 테스트도 반복적으로 진행한다
+  - 제품 코드 못지않게 테스트 스위트도 계속해서 보강한다
+- 버그를 발견하는 즉시 발견한 버그를 명확히 잡아내는 테스트부터 작성하는 습관을 들이자
+
+> 버그 리포트를 받으면 가장 먼저 그 버그를 드러내는 단위 테스트부터 작성하자.
+
+- 충분한 테스트의 기준은 없다(주관적)
+  - 테스트 커버리지 분석은 코드에서 테스트하지 않은 영역을 찾는 데만 도움될 뿐, 테스트 스위트의 품질과는 크게 상관없다
+- 자가 테스트 코드의 목적: '누군가 결함을 심으면 테스트가 발견할 수 있다는 믿음'을 갖게 해주는 것
+  - 리팩터링 후 테스트 결과가 모두 초록색인 것만 보고도 리팩터링 과정에서 생겨난 버그가 하나도 없다고 확신할 수 있다면 충분히 좋은 테스트 스위트이다
