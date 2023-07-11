@@ -73,10 +73,14 @@ describe("province", function () {
     expect(asia.shortfall).toBe(-25);
     expect(asia.profit).toBe(0);
   });
-
   it("negative demand", function () {
     asia.demand = -1;
     expect(asia.shortfall).toBe(-26);
     expect(asia.profit).toBe(-10);
+  });
+  it("empty string demand", function () {
+    asia.demand = "";
+    expect(asia.shortfall).NaN;
+    expect(asia.profit).NaN;
   });
 });
